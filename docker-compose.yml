@@ -1,0 +1,37 @@
+version: '3.2'
+
+services:
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: retta/nginx-proxy:latest
+    network_mode: bridge
+    ports: 
+      - 80:80
+      - 443:443
+    restart: always
+    tty: true
+    volumes:
+      - /opt/pasta-local/nginx-proxy/certificados-https:/etc/nginx/certs
+      - /opt/pasta-local/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - /opt/pasta-local/nginx-proxy/dhparam:/etc/nginx/dhparam
+      - /opt/pasta-local/nginx-proxy/html:/usr/share/nginx/html
+      - /opt/pasta-local/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  nginx-proxy-letsencrypt:
+    container_name: nginx-proxy-letsencrypt
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    network_mode: bridge
+    restart: always
+    tty: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/pasta-local/nginx-proxy/certificados-https:/etc/nginx/certs
+      - /opt/pasta-local/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - /opt/pasta-local/nginx-proxy/dhparam:/etc/nginx/dhparam
+      - /opt/pasta-local/nginx-proxy/html:/usr/share/nginx/html
+      - /opt/pasta-local/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro      
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+      
